@@ -1,36 +1,34 @@
 import {useEffect, useState} from "react";
 
-function App() {
-    const[loading, setLoading] = useState(true);
-    const [coins, setCoins] = useState([]);
+function App(){
+    const [loading, setLoading] = useState(true);
+    const [movies, setMovies] = useState([]);
+    const getMovies = async ()=>{
+        const json = await (await fetch(
+            `https://nomad-movies.nomadcoders.workers.dev/movies`
+        )).json();
+        setMovies(json);
+        setLoading(false);
+    }
     useEffect(() => {
-        fetch("https://api.coinpaprika.com/v1/tickers")
-            .then(response => response.json())
-            .then((json) => {
-                setCoins(json)
-                setLoading(false);
-            });
-
-
+       getMovies();
     }, [])
 
     return(
         <div>
-            <h1>
-                The Coins! {loading ? "" : `(${coins.length})`}
-            </h1>
-            {loading ? (
-                <strong>Loading...</strong>
-            ) : (
-            <select>
-                {coins.map((coin) =>(
-                <option
-                    key={coin.id}> {coin.name} ({coin.symbol} : ${coin.quotes.USD.price}
-                </option>
-                ))}
-            </select>
+            {loading ? <h1> Loading...</h1> :(
+                <div>
+                    {movies.map((movie) => (
+                        <div key={movie.id}> {/*id*/}
+                            <h2>{movie.original_title}</h2> {/*제목*/}
+                            <img src={movie.poster_path} style={{width:"200px"}}></img> {/*포스터*/}
+                            <p>{movie.overview}</p> {/*설명*/}
+                            <ul>{movie.genre_ids.map((genre)=>(<li key={genre}>{genre}</li>))}</ul> {/*장르*/}
+                            <hr />
+                        </div>
+                    ))}</div>
             )}
         </div>
-    )
+    );
 }
 export default App;
